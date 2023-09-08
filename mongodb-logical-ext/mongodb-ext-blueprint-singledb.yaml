@@ -36,7 +36,7 @@ actions:
             port='27017'
             user='{{ index .Phases.takeConsistentBackup.Secrets.mongosecret.Data "username" | toString }}'
             dbPassword='{{ index .Phases.takeConsistentBackup.Secrets.mongosecret.Data "password" | toString }}'
-            dump_cmd="mongodump --gzip --archive --host ${host} --port ${port} -u ${user} -p ${dbPassword} --db k10mongodb --authenticationDatabase=admin"
+            dump_cmd="mongodump --gzip --archive --host ${host} --port ${port} -u ${user} -p ${dbPassword} --db db_name --authenticationDatabase=admin"
             backup_file_path='rs_backup.gz'
             ${dump_cmd} | kando location push --profile '{{ toJson .Profile }}' --path "${backup_file_path}" --output-name "kopiaOutput" -
   restore:
@@ -67,7 +67,7 @@ actions:
             port='27017'
             user='{{ index .Phases.pullFromStore.Secrets.mongosecret.Data "username" | toString }}'
             dbPassword='{{ index .Phases.pullFromStore.Secrets.mongosecret.Data "password" | toString }}'
-            restore_cmd="mongorestore --gzip --archive --drop --host ${host} --port ${port} -u ${user} -p ${dbPassword} --db k10mongodb --authenticationDatabase=admin"
+            restore_cmd="mongorestore --gzip --archive --drop --host ${host} --port ${port} -u ${user} -p ${dbPassword} --db db_name --authenticationDatabase=admin"
             backup_file_path='rs_backup.gz'
             kopia_snap='{{ .ArtifactsIn.mongoBackup.KopiaSnapshot }}'
             kando location pull --profile '{{ toJson .Profile }}' --path "${backup_file_path}" --kopia-snapshot "${kopia_snap}" - | ${restore_cmd}

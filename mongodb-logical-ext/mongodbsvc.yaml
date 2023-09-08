@@ -5,4 +5,4 @@ metadata:
   namespace: externaldb
 spec:
   type: ExternalName
-  externalName: linuxapps.homelab.local        
+  externalName: mongodbfqdn.domain.local        
