@@ -11,9 +11,6 @@ actions:
         # `kopiaOutput` is the name provided to kando using `--output-name` flag
         kopiaSnapshot: "{{ .Phases.takeConsistentBackup.Output.kopiaOutput }}"
     phases:
-      # provide secret name and namespace
-      # provide host
-      # specifiy password data from secret
     - func: KubeTask
       name: takeConsistentBackup
       objects:
@@ -23,7 +20,7 @@ actions:
           namespace: "{{ .Deployment.Namespace }}"
       args:
         namespace: "{{ .Deployment.Namespace }}"
-        image: ghcr.io/kanisterio/mongodb:0.94.0
+        image: ghcr.io/kanisterio/mongodb:0.95.0
         command:
           - bash
           - -o
@@ -32,11 +29,13 @@ actions:
           - pipefail
           - -c
           - |
-            host='external-mongodb.externaldb.svc.cluster.local'
-            port='27017'
+            host='{{ index .Phases.takeConsistentBackup.Secrets.mongosecret.Data "host" | toString }}'
+            port='{{ index .Phases.takeConsistentBackup.Secrets.mongosecret.Data "port" | toString }}'
             user='{{ index .Phases.takeConsistentBackup.Secrets.mongosecret.Data "username" | toString }}'
+            db_name='{{ index .Phases.takeConsistentBackup.Secrets.mongosecret.Data "db_name" | toString }}'
+            auth_database='{{ index .Phases.takeConsistentBackup.Secrets.mongosecret.Data "auth_database" | toString }}'
             dbPassword='{{ index .Phases.takeConsistentBackup.Secrets.mongosecret.Data "password" | toString }}'
-            dump_cmd="mongodump --gzip --archive --host ${host} --port ${port} -u ${user} -p ${dbPassword} --db db_name --authenticationDatabase=admin"
+            dump_cmd="mongodump --gzip --archive --host ${host} --port ${port} -u ${user} -p ${dbPassword} --db ${db_name} --authenticationDatabase=${auth_database}"
             backup_file_path='rs_backup.gz'
             ${dump_cmd} | kando location push --profile '{{ toJson .Profile }}' --path "${backup_file_path}" --output-name "kopiaOutput" -
   restore:
@@ -54,7 +53,7 @@ actions:
           namespace: "{{ .Deployment.Namespace }}"
       args:
         namespace: "{{ .Deployment.Namespace }}"
-        image: ghcr.io/kanisterio/mongodb:0.94.0
+        image: ghcr.io/kanisterio/mongodb:0.95.0
         command:
           - bash
           - -o
@@ -63,11 +62,13 @@ actions:
           - pipefail
           - -c
           - |
-            host='external-mongodb.externaldb.svc.cluster.local'
-            port='27017'
+            host='{{ index .Phases.pullFromStore.Secrets.mongosecret.Data "host" | toString }}'
+            port='{{ index .Phases.pullFromStore.Secrets.mongosecret.Data "port" | toString }}'
             user='{{ index .Phases.pullFromStore.Secrets.mongosecret.Data "username" | toString }}'
+            db_name='{{ index .Phases.pullFromStore.Secrets.mongosecret.Data "db_name" | toString }}'
+            auth_database='{{ index .Phases.pullFromStore.Secrets.mongosecret.Data "auth_database" | toString }}'            
             dbPassword='{{ index .Phases.pullFromStore.Secrets.mongosecret.Data "password" | toString }}'
-            restore_cmd="mongorestore --gzip --archive --drop --host ${host} --port ${port} -u ${user} -p ${dbPassword} --db db_name --authenticationDatabase=admin"
+            restore_cmd="mongorestore --gzip --archive --drop --host ${host} --port ${port} -u ${user} -p ${dbPassword} --db ${db_name} --authenticationDatabase=${auth_database}"
             backup_file_path='rs_backup.gz'
             kopia_snap='{{ .ArtifactsIn.mongoBackup.KopiaSnapshot }}'
             kando location pull --profile '{{ toJson .Profile }}' --path "${backup_file_path}" --kopia-snapshot "${kopia_snap}" - | ${restore_cmd}
@@ -81,7 +82,7 @@ actions:
       name: deleteFromStore
       args:
         namespace: "{{ .Namespace.Name }}"
-        image: ghcr.io/kanisterio/mongodb:0.94.0
+        image: ghcr.io/kanisterio/mongodb:0.95.0
         command:
           - bash
           - -o

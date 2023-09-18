@@ -27,21 +27,32 @@ This blueprint has been tested with MongoDB 7.0.
 
 ## Prerequisites
 To use this blueprint you need the following:
-1. A secret containing the credentials to connect with the MongoDB instance, usually the one used by the kubernetes application to connect with the MongoDB database.  A sample secret YAML file has been included in this project.
 1. A service of type **externalName** to connect with the external MongoDB instance using its FQDN.
-1. (Just when trying to backup all MongoDB databases) MongoDB Oplog must be enabled.
+2. A secret containing the credentials to connect with the MongoDB instance, usually the one used by the kubernetes application to connect with the MongoDB database.  A sample secret YAML file has been included in this project, and the following data should be included:
+
+| Name                    | Type     | Default value         | Description                                                    |
+| ----------------------- | -------- | --------------------- | -------------------------------------------------------------- |
+| `username`              | String   | `K10Admin`            | MongoDB user name                                              |
+| `password`              | String   | `Veeam123!`           | MongoDB password                                               |
+| `host `                 | String   | `external-mongodb.externaldb.svc.cluster.local`   | FQDN for the Service of type externalName mentioned as a pre-requisite  |
+| `port`                  | String   | `27017`               | TCP port used by MongoDB instance                              |
+| `auth_database`         | String   | `admin`               | Only required for single database backup                       |
+| `db_name`               | String   | `k10mongodb`          | DB to be protected, only required for single database backup   |
+
+
+3. (Just when trying to backup all MongoDB databases) MongoDB Oplog must be enabled.
+
 
 ## Blueprint Variables
 
-Some of the tasks or commands run in the blueprint require the use of some variables, which should be properly set according to your needs:
+In the blueprint, it's required to provide the following data
+
 
 | Name                    | Type     | Default value         | Description                                                                                                            |
 | ----------------------- | -------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `mongosecret`           | Secret   | `mongodb-secret`      | For backup and restore actions, it's required to set the name for the Secret with the credentials to connect with MongoDB instance             |
-| `host `                 | String   | `external-mongodb.externaldb.svc.cluster.local`   | FQDN for the Service of type externalName mentioned in the  [prerequisites](#Prerequisites)   |
-| `port`                  | String   | `27017`               | TCP port used by MongoDB instance                                                                      |
-| `user`                  | String   | `username`            | String containing the user name in the Secret  mentioned in the  [prerequisites](#Prerequisites)   |
-| `password`              | String   | `password`            | String containing the password in the Secret  mentioned in the  [prerequisites](#Prerequisites)   |
+| Secret Name             | Secret   | `mongodb-secret`      | For backup and restore actions, it's required to set the name for the Secret with the credentials to connect with MongoDB instance            |
+| Namespace               | String   | `{{ .Deployment.Namespace }}`   | By default the namespace will be got from the application itself.  In this case the application was deployed as a Deployment, but it could be also a Stateful, and in that case you should modify the blueprint accordingly   |
+
 
 
 **NOTE**: It's important to highlight that this blueprint assumes that the application running in the Kubernetes cluster, and connected with the external MongoDB database, has been configured as a **"Deployment"**.  In case of using another kind of workload, like a StatefulSet, you must modify the blueprint accordingly.

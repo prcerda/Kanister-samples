@@ -11,9 +11,6 @@ actions:
         # `kopiaOutput` is the name provided to kando using `--output-name` flag
         kopiaSnapshot: "{{ .Phases.takeConsistentBackup.Output.kopiaOutput }}"
     phases:
-      # provide secret name and namespace
-      # provide host
-      # specifiy password data from secret
     - func: KubeTask
       name: takeConsistentBackup
       objects:
@@ -23,7 +20,7 @@ actions:
           namespace: "{{ .Deployment.Namespace }}"
       args:
         namespace: "{{ .Deployment.Namespace }}"
-        image: ghcr.io/kanisterio/mongodb:0.94.0
+        image: ghcr.io/kanisterio/mongodb:0.95.0
         command:
           - bash
           - -o
@@ -32,8 +29,8 @@ actions:
           - pipefail
           - -c
           - |
-            host='external-mongodb.externaldb.svc.cluster.local'
-            port='27017'
+            host='{{ index .Phases.takeConsistentBackup.Secrets.mongosecret.Data "host" | toString }}'
+            port='{{ index .Phases.takeConsistentBackup.Secrets.mongosecret.Data "port" | toString }}'
             user='{{ index .Phases.takeConsistentBackup.Secrets.mongosecret.Data "username" | toString }}'
             dbPassword='{{ index .Phases.takeConsistentBackup.Secrets.mongosecret.Data "password" | toString }}'
             dump_cmd="mongodump --oplog --gzip --archive --host ${host} --port ${port} -u ${user} -p ${dbPassword}"
@@ -54,7 +51,7 @@ actions:
           namespace: "{{ .Deployment.Namespace }}"
       args:
         namespace: "{{ .Deployment.Namespace }}"
-        image: ghcr.io/kanisterio/mongodb:0.94.0
+        image: ghcr.io/kanisterio/mongodb:0.95.0
         command:
           - bash
           - -o
@@ -63,8 +60,8 @@ actions:
           - pipefail
           - -c
           - |
-            host='external-mongodb.externaldb.svc.cluster.local'
-            port='27017'
+            host='{{ index .Phases.pullFromStore.Secrets.mongosecret.Data "host" | toString }}'
+            port='{{ index .Phases.pullFromStore.Secrets.mongosecret.Data "port" | toString }}'
             user='{{ index .Phases.pullFromStore.Secrets.mongosecret.Data "username" | toString }}'
             dbPassword='{{ index .Phases.pullFromStore.Secrets.mongosecret.Data "password" | toString }}'
             restore_cmd="mongorestore --gzip --archive --oplogReplay --drop --host ${host} --port ${port} -u ${user} -p ${dbPassword}"
@@ -81,7 +78,7 @@ actions:
       name: deleteFromStore
       args:
         namespace: "{{ .Namespace.Name }}"
-        image: ghcr.io/kanisterio/mongodb:0.94.0
+        image: ghcr.io/kanisterio/mongodb:0.95.0
         command:
           - bash
           - -o
