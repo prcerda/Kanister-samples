@@ -16,3 +16,4 @@ If you want to learn about how to create your own Kanister Blueprints, you can r
 | Name                    | Description                                                                                                            |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | [MongoDB External DB](mongodb-logical-ext/README.md)   | Kanister blueprint to backup MongoDB external database instance, running outside the Kubernetes cluster |
+| [PostgreSQL External DB](postgresql-dump-ext/README.md)   | Kanister blueprint to backup PostgreSQL external database instance, running outside the Kubernetes cluster |
