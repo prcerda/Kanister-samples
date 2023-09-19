@@ -15,7 +15,7 @@ In this project, I'm including two sample blueprints for external MongoDB databa
 ## Disclaimer
 This project is an example of an deployment and meant to be used for testing and learning purposes only. Do not use in production. 
 
-This blueprint has been tested with MongoDB 7.0.
+This blueprint has been tested with **MongoDB 7.0**.
 
 
 # Table of Contents
