@@ -1,7 +1,7 @@
 apiVersion: cr.kanister.io/v1alpha1
 kind: Blueprint
 metadata:
-  name: postgres-ext-bp
+  name: postgresql-ext-bp
 actions:
   backup:
     outputArtifacts:

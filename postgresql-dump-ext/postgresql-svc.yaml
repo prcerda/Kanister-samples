@@ -5,4 +5,4 @@ metadata:
   namespace: appexternaldb #Application's namespace
 spec:
   type: ExternalName
-  externalName: postgresqlfqdn.domain.local    #FQDN of PostgreSQL instance
+  externalName: postgresqlfqdn.domain.local     #FQDN of PostgreSQL instance
