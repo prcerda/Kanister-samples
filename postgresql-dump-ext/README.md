@@ -29,6 +29,7 @@ This blueprint has been tested with **PostgreSQL 15.4 for Linux**.
 To use this blueprint you need the following:
 1. A service of type **externalName** to connect with the external PostgreSQL instance using its FQDN.
 2. A [secret](postgresql-secret.yaml) containing the credentials to connect with the PostgreSQL instance, usually the one used by the kubernetes application to connect with the PostgreSQL database.  A sample secret YAML file has been included in this project, and the following data should be included:
+
 | Name                    | Type     | Default value         | Description                                                    |
 | ----------------------- | -------- | --------------------- | -------------------------------------------------------------- |
 | `username`              | String   | `stock`            | PostgreSQL user name                                              |
