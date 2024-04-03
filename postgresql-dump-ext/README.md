@@ -28,15 +28,20 @@ This blueprint has been tested with **PostgreSQL 15.4 for Linux**.
 ## Prerequisites
 To use this blueprint you need the following:
 1. A service of type **externalName** to connect with the external PostgreSQL instance using its FQDN.
-2. A secret containing the credentials to connect with the PostgreSQL instance, usually the one used by the kubernetes application to connect with the PostgreSQL database.  A sample secret YAML file has been included in this project, and the following data should be included:
+2. A [secret](postgresql-secret.yaml) containing the credentials to connect with the PostgreSQL instance, usually the one used by the kubernetes application to connect with the PostgreSQL database.  A sample secret YAML file has been included in this project, and the following data should be included:
+| Name                    | Type     | Default value         | Description                                                    |
+| ----------------------- | -------- | --------------------- | -------------------------------------------------------------- |
+| `username`              | String   | `stock`            | PostgreSQL user name                                              |
+| `password`              | String   | `Veeam123!`           | PostgreSQL password                                               |
+
+
+3. A [configmap](postgresql-configmap.yaml) containing the data to connect to the database server
 
 | Name                    | Type     | Default value         | Description                                                    |
 | ----------------------- | -------- | --------------------- | -------------------------------------------------------------- |
-| `username`              | String   | `kastenbp`            | PostgreSQL user name                                              |
-| `password`              | String   | `Veeam123!`           | PostgreSQL password                                               |
-| `host `                 | String   | `external-postgresql.appexternaldb.svc.cluster.local`   | FQDN for the Service of type externalName mentioned as a pre-requisite  |
+| `host `                 | String   | `external-postgresql.stock-demo.svc.cluster.local`   | FQDN for the Service of type externalName mentioned as a pre-requisite  |
 | `port`                  | String   | `5432`               | TCP port used by PostgreSQL instance                              |
-| `db_name`               | String   | `kastenbp`           | DB to be protected, only required for single database backup   |
+| `db_name`               | String   | `stock`           | DB to be protected, only required for single database backup   |
 
 
 3. The PostgreSQL instance should allow for remote connections and for password authentication using any of the methods supported by PostgreSQL: https://www.postgresql.org/docs/current/auth-password.html.
@@ -67,8 +72,8 @@ In order to use this blueprint:
 kubectl create -f postgresql-ext-blueprint-alldbs.yaml -n kasten-io
 ```
 
-4. Annotate the application (deployment) with the correct annotation to instruct K10 to use the Blueprint (postgres-ext-bp)
+4. Annotate the application ConfigMap with the correct annotation to instruct K10 to use the Blueprint (postgres-ext-bp)
 ```
-kubectl annotate deployment application-name kanister.kasten.io/blueprint='postgres-ext-bp' --namespace=application-namespace
+kubectl annotate configmap postgresql-configmap kanister.kasten.io/blueprint='postgres-ext-bp' --namespace=application-namespace
 ```
 5. Use Kasten to backup and restore the application using a [Kasten Policy](postgres-ext-bp)
