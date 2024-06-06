@@ -1,0 +1,24 @@
+kind: BlueprintBinding
+apiVersion: config.kio.kasten.io/v1alpha1
+metadata:
+  name: bpb-mariadb-galera-dump
+  namespace: kasten-io
+spec:
+  blueprintRef:
+    name: bp-mariadb-galera-dump
+    namespace: kasten-io
+  resources:
+    matchAll:
+      - type:
+          operator: In
+          values:
+            - group: apps
+              resource: statefulsets
+      - annotations:
+          key: kanister.kasten.io/blueprint
+          operator: DoesNotExist
+      - labels:
+          key: database-type
+          operator: In
+          values:
+            - mariadb-galera

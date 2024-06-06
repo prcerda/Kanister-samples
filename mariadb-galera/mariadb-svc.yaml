@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb-galera-backup
+  namespace: mariadb-galera #namespace where the MariaDB Galera cluster is running
+spec:
+  ports:
+    - name: mysql-backup
+      protocol: TCP
+      appProtocol: mysql
+      port: 3306
+      targetPort: mysql
+  selector:
+    app.kubernetes.io/name: mariadb-galera  #name of the statefulset
+    statefulset.kubernetes.io/pod-name: mariadb-galera-0 #name of the pod
+  type: ClusterIP
