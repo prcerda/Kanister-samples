@@ -37,12 +37,12 @@ actions:
                   dump_databases="${dump_databases} ${db}"
           done
 
-          mysql -u root --password=${root_password} -h mariadb-galera-backup.mariadb-galera.svc.cluster.local --execute "SET GLOBAL wsrep_desync = ON"
+          mysql -u root --password=${root_password} -h mariadb-galera-backup.{{ .StatefulSet.Namespace }}.svc.cluster.local --execute "SET GLOBAL wsrep_desync = ON"
           
-          mysqldump -u root --password=${root_password} -h mariadb-galera-backup.mariadb-galera.svc.cluster.local --column-statistics=0 --single-transaction --databases ${dump_databases} | gzip - | kando location push --profile '{{ toJson .Profile }}' --path ${s3_path} -
+          mysqldump -u root --password=${root_password} -h mariadb-galera-backup.{{ .StatefulSet.Namespace }}.svc.cluster.local --column-statistics=0 --single-transaction --databases ${dump_databases} | gzip - | kando location push --profile '{{ toJson .Profile }}' --path ${s3_path} -
           kando output s3path ${s3_path}
           
-          mysql -u root --password=${root_password} -h mariadb-galera-backup.mariadb-galera.svc.cluster.local --execute "SET GLOBAL wsrep_desync = OFF"
+          mysql -u root --password=${root_password} -h mariadb-galera-backup.{{ .StatefulSet.Namespace }}.svc.cluster.local --execute "SET GLOBAL wsrep_desync = OFF"
   restore:
     inputArtifactNames:
     - mariaCloudDump
